@@ -39,4 +39,4 @@ version: 2026.5.1
 slug: esphome
 description: Build your own smart home devices using ESPHome, no programming experience
   required
-image: ghcr.io/esphome/esphome-hassio
+image: ghcr.io/w-floyd/esphome-hassio

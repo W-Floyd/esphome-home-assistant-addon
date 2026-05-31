@@ -1,0 +1,44 @@
+name: Build patched add-on image
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    strategy:
+      matrix:
+        include:
+          - arch: amd64
+            platform: linux/amd64
+          - arch: aarch64
+            platform: linux/arm64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-qemu-action@v3
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: esphome
+          platforms: ${{ matrix.platform }}
+          push: true
+          build-args: BUILD_FROM=ghcr.io/esphome/esphome-hassio:2026.5.1
+          tags: |
+            ghcr.io/w-floyd/esphome-hassio:2026.5.1-${{ matrix.arch }}
+            ghcr.io/w-floyd/esphome-hassio:latest-${{ matrix.arch }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
